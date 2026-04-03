@@ -339,6 +339,12 @@ while True:
         if bullet.rect.colliderect(player.rect):
             enemy_bullets.remove(bullet)
             player_health -= 1
+
+        for obs in obstacles:
+            if bullet.rect.colliderect(obs.rect):
+                for bullet in enemy_bullets[:]:
+                    enemy_bullets.remove(bullet)
+                    break
     
     if player_health <= 0:
         game_over = True
