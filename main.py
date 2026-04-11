@@ -3,6 +3,8 @@ import random
 import sys
 
 pygame.init()
+pygame.mixer.init()
+
 #Налаштування
 import sys
 
@@ -29,7 +31,7 @@ level_map = [
     "......w.............",
     "....................",
     ".ww......e.....wwww.",
-    ".ww............wwww.",
+    ".ww............w....",
     "...............w....",
     "......wwww..........",
 ]
@@ -60,6 +62,9 @@ player_left_img = load_image("playerl.png", (TILE_SIZE, TILE_SIZE))
 player_right_img = load_image("playerr.png", (TILE_SIZE, TILE_SIZE))
 player_up_img = load_image("player.png", (TILE_SIZE, TILE_SIZE))
 player_down_img = load_image("player_d.png", (TILE_SIZE, TILE_SIZE))
+
+shoot_sound = pygame.mixer.Sound("shoot.wav")
+
 class Button():
     def __init__(self, color, x, y, w, h, text, fsize, txt_color):
 
@@ -230,9 +235,12 @@ class Enemy(GameObject):
             self.image = enemy_down_img
 
         current_time = pygame.time.get_ticks()
+        
 
         if current_time - self.last_shot > self.shoot_delay:
             self.last_shot = current_time
+            shoot_sound.play()
+            shoot_sound.set_volume(0.1)
 
             #Направление на игрока
             dx = player.rect.centerx - self.rect.centerx
@@ -359,6 +367,7 @@ while True:
                 if bullet_count >= 1:
                     bullet_count -= 1
                     bullets.append(player.shoot())
+                    shoot_sound.play()
 
     if bullet_count < 3:
         bullet_cool += 1
