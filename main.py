@@ -5,11 +5,6 @@ import sys
 pygame.init()
 pygame.mixer.init()
 
-#Налаштування
-import sys
-
-pygame.init()
-
 TILE_SIZE = 40
 FPS = 60
 
@@ -83,7 +78,7 @@ class Button():
         self.text = text
         self.txt_color = txt_color
         self.txt_image = pygame.font.Font(None, fsize).render(text, True, txt_color)
-    def draw(self, shift_x, shift_y): # цей метод малює кнопку із тектом в середині. Сам текст зміщенний на величини shift_x та shift_y
+    def draw(self, shift_x, shift_y):
         screen.blit(self.image, (self.rect.x, self.rect.y))
         screen.blit(self.txt_image, (self.rect.x + shift_x, self.rect.y + shift_y))
 
@@ -120,7 +115,7 @@ while menu:
             win = False
             pygame.quit()
             sys.exit()
-#Класи
+
 class GameObject:
     def __init__(self, x, y, size, image=None, color=None):
         self.rect = pygame.Rect(x, y, size, size)
@@ -242,7 +237,6 @@ class Enemy(GameObject):
             shoot_sound.play()
             shoot_sound.set_volume(0.1)
 
-            #Направление на игрока
             dx = player.rect.centerx - self.rect.centerx
             dy = player.rect.centery - self.rect.centery
 
@@ -257,7 +251,6 @@ class Enemy(GameObject):
 
 
 
-#Завантаження рівня
 def load_level(level_map):
     obstacles = []
     player = None
@@ -295,7 +288,7 @@ if current_time - last_spawn_time > spawn_delay:
 game_over = False
 font = pygame.font.Font(None, 36)
 text1 = font.render(f"Points: {points}", True, (255, 255, 255))
-#Цикл
+
 while True:
     if game_over:
         screen.fill((0, 0, 0))
@@ -356,7 +349,6 @@ while True:
     else:
         screen.fill((255, 255, 255))
 
-    #Події
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -375,7 +367,6 @@ while True:
             bullet_cool = 0 
             bullet_count += 1
 
-    #Управління
     keys = pygame.key.get_pressed()
     dx, dy = 0, 0
 
@@ -418,12 +409,11 @@ while True:
     for bullet in enemy_bullets[:]:
         bullet.move()
 
-        # удаление за экраном
+        #Видалення пуль за межами (Ворог)
         if not screen.get_rect().colliderect(bullet.rect):
             enemy_bullets.remove(bullet)
             continue
-
-        # попадание в игрока
+        
         if bullet.rect.colliderect(player.rect):
             enemy_bullets.remove(bullet)
             player_health -= 1
