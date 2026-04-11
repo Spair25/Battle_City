@@ -49,12 +49,17 @@ def load_image(path, size):
     img = pygame.image.load(path)
     return pygame.transform.scale(img, size)
 
-player_img = load_image("player.png", (TILE_SIZE, TILE_SIZE))
 wall_img = load_image("wall.jpg", (TILE_SIZE, TILE_SIZE))
 bullet_img = load_image("bullet.png", (10, 10))
 background_img = load_image("background.png", (WIDTH, HEIGHT))
-enemy_img = load_image("enemy.png", (TILE_SIZE, TILE_SIZE))
-
+enemy_left_img = load_image("enemyl.png", (TILE_SIZE, TILE_SIZE))
+enemy_right_img = load_image("enemyr.png", (TILE_SIZE, TILE_SIZE))
+enemy_up_img = load_image("enemy.png", (TILE_SIZE, TILE_SIZE))
+enemy_down_img = load_image("enemy_d.png", (TILE_SIZE, TILE_SIZE))
+player_left_img = load_image("playerl.png", (TILE_SIZE, TILE_SIZE))
+player_right_img = load_image("playerr.png", (TILE_SIZE, TILE_SIZE))
+player_up_img = load_image("player.png", (TILE_SIZE, TILE_SIZE))
+player_down_img = load_image("player_d.png", (TILE_SIZE, TILE_SIZE))
 
 #Класи
 class GameObject:
@@ -88,7 +93,7 @@ class GameObject:
 
 class Player(GameObject):
     def __init__(self, x, y):
-        super().__init__(x, y, TILE_SIZE, image=player_img, color=(0, 200, 0))
+        super().__init__(x, y, TILE_SIZE, image=player_right_img, color=(0, 200, 0))
         self.speed = 5
         self.direction = (0, -1)
 
@@ -97,6 +102,16 @@ class Player(GameObject):
 
         if dx != 0 or dy != 0:
             self.direction = (dx, dy)
+
+        if dx < 0:
+            self.image = player_left_img
+        elif dx > 0:
+            self.image = player_right_img
+
+        if dy < 0:
+            self.image = player_up_img
+        elif dy > 0:
+            self.image = player_down_img
 
     def shoot(self):
         return Bullet(self.rect.centerx, self.rect.centery, self.direction)
@@ -130,7 +145,7 @@ class Obstacle(GameObject):
 
 class Enemy(GameObject):
     def __init__(self, x, y):
-        super().__init__(x, y, TILE_SIZE, image=enemy_img, color=(0, 200, 0))
+        super().__init__(x, y, TILE_SIZE, image=enemy_up_img, color=(0, 200, 0))
         self.speed = 3
         self.direction = random.choice([(1,0), (-1,0), (0,1), (0,-1)])
         self.change_dir_timer = 0
@@ -149,6 +164,16 @@ class Enemy(GameObject):
 
         dx, dy = self.direction
         self.move(dx, dy, obstacles, self.speed)
+
+        if dx < 0:
+            self.image = enemy_left_img
+        elif dx > 0:
+            self.image = enemy_right_img
+
+        if dy < 0:
+            self.image = enemy_up_img
+        elif dy > 0:
+            self.image = enemy_down_img
 
         current_time = pygame.time.get_ticks()
 
