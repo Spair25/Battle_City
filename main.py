@@ -8,7 +8,7 @@ pygame.mixer.init()
 TILE_SIZE = 40
 FPS = 60
 
-level_map = [
+level1_map = [
     "........ww..........",
     "........w...........",
     "...ww...w...........",
@@ -30,9 +30,54 @@ level_map = [
     "...............w....",
     "......wwww..........",
 ]
+level2_map = [
+    "....................",
+    "........w...........",
+    "........w...........",
+    "....wwwww...........",
+    "....w........w......",
+    "w.......w....w..e...",
+    "w....p..w....w......",
+    "w............wwww...",
+    "........ww.........w",
+    "..ww.....w.........w",
+    ".........ww........w",
+    "...w..........ww....",
+    "...............w....",
+    "......w........w....",
+    "......w.............",
+    ".........w.......w..",
+    ".........w.......w..",
+    ".........w.....www..",
+    "...wwwwwww..........",
+    "....................",
+]
+level3_map = [
+    "....................",
+    ".....wwwwwwwwww.....",
+    "...w............w...",
+    "..ww.....p......ww..",
+    "....................",
+    ".w......wwww......w.",
+    "....................",
+    "....................",
+    "........wwww........",
+    ".w................w.",
+    ".w....wwwwwwww....w.",
+    ".w................w.",
+    "........wwww........",
+    "....................",
+    "....................",
+    ".w......wwww......w.",
+    "....................",
+    "..ww.....e......ww..",
+    "...w............w...",
+    ".....wwwwwwwwww.....",
+    "....................",
+]
 
-ROWS = len(level_map)
-COLS = len(level_map[0])
+ROWS = len(level1_map)
+COLS = len(level1_map[0])
 
 WIDTH = COLS * TILE_SIZE
 HEIGHT = ROWS * TILE_SIZE
@@ -59,7 +104,8 @@ player_up_img = load_image("player.png", (TILE_SIZE, TILE_SIZE))
 player_down_img = load_image("player_d.png", (TILE_SIZE, TILE_SIZE))
 
 shoot_sound = pygame.mixer.Sound("shoot.wav")
-
+max_enemies = 3
+enemies_on_map = 0
 class Button():
     def __init__(self, color, x, y, w, h, text, fsize, txt_color):
 
@@ -91,6 +137,7 @@ btn_restart = Button((255, 29, 109, 10), 260, 445, 280, 70,'RESTART' ,50, (255,2
 kill = False
 menu = True
 game = False
+current_level = 1
 while menu:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
@@ -251,12 +298,12 @@ class Enemy(GameObject):
 
 
 
-def load_level(level_map):
+def load_level1(level1_map):
     obstacles = []
     player = None
     enemies = []
 
-    for row_index, row in enumerate(level_map):
+    for row_index, row in enumerate(level1_map):
         for col_index, cell in enumerate(row):
             x = col_index * TILE_SIZE
             y = row_index * TILE_SIZE
@@ -271,25 +318,100 @@ def load_level(level_map):
                 enemies.append(Enemy(x, y))
 
     return player, obstacles, enemies
+def load_level2(level2_map):
+    obstacles = []
+    player = None
+    enemies = []    
+    ROWS = len(level2_map)
+    COLS = len(level2_map[0])
+    for row_index, row in enumerate(level2_map):
+        for col_index, cell in enumerate(row):
+            x = col_index * TILE_SIZE
+            y = row_index * TILE_SIZE
+
+            if cell == "w":
+                obstacles.append(Obstacle(x, y))
+
+            elif cell == "p":
+                player = Player(x, y)
+            
+            elif cell == "e":
+                enemies.append(Enemy(x, y))
+
+    return player, obstacles, enemies
+def load_level3(level3_map):
+    obstacles = []
+    player = None
+    enemies = []    
+    ROWS = len(level3_map)
+    COLS = len(level3_map[0])
+    for row_index, row in enumerate(level3_map):
+        for col_index, cell in enumerate(row):
+            x = col_index * TILE_SIZE
+            y = row_index * TILE_SIZE
+
+            if cell == "w":
+                obstacles.append(Obstacle(x, y))
+
+            elif cell == "p":
+                player = Player(x, y)
+            
+            elif cell == "e":
+                enemies.append(Enemy(x, y))
+
+    return player, obstacles, enemies
+def wwin():
+    screen.fill((0, 0, 0))
+
+    font = pygame.font.Font(None, 80)
+    text = font.render("WIN", True, (0, 255, 0))
+
+    screen.blit(text, (WIDTH//2 - 150, HEIGHT//2 - 40))
+
+    pygame.display.flip()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
 
 
-player, obstacles, enemies = load_level(level_map)
+player, obstacles, enemies = load_level1(level1_map)
 bullets = []
 enemy_bullets = []
 player_health = 5
 bullet_count = 3
 bullet_cool = 0
 points = 0
-spawn_delay = 15000 
+spawn_delay = 5000 
 last_spawn_time = pygame.time.get_ticks()
 current_time = pygame.time.get_ticks()
 if current_time - last_spawn_time > spawn_delay:
     last_spawn_time = current_time
 game_over = False
+win_game = False
+countoflevel = 1
 font = pygame.font.Font(None, 36)
 text1 = font.render(f"Points: {points}", True, (255, 255, 255))
+textlevel = font.render(f"Level: {countoflevel}", True, (255, 255, 255))
 
 while True:
+    current_time = pygame.time.get_ticks()
+    if win_game:
+        screen.fill((0, 0, 0))
+
+        font = pygame.font.Font(None, 80)
+        text = font.render("YOU WIN!", True, (0, 255, 0))
+
+        screen.blit(text, (WIDTH//2 - 150, HEIGHT//2 - 40))
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        continue
     if game_over:
         screen.fill((0, 0, 0))
 
@@ -306,42 +428,43 @@ while True:
                 sys.exit()
 
         continue
-    if points >=5:
-        screen.fill((0, 0, 0))
+    if points >= 3 and current_level == 1:
+        player, obstacles, enemies = load_level2(level2_map)
+        current_level = 2
+        countoflevel = 2
+        bullets.clear()
+        enemy_bullets.clear()
+        textlevel = font.render(f"Level: {countoflevel}", True, (255, 255, 255))
+        player_health = 5
+    if points >= 6 and current_level == 2:
+        player, obstacles, enemies = load_level3(level3_map)
+        current_level = 3
+        countoflevel = 3
+        bullets.clear()
+        enemy_bullets.clear()
+        textlevel = font.render(f"Level: {countoflevel}", True, (255, 255, 255))
+        player_health = 5
+    if points >= 9 and current_level == 3:
+        win_game = True
+    if enemies_on_map <2:
+        if current_time - last_spawn_time > spawn_delay:
+            last_spawn_time = current_time
 
-        font = pygame.font.Font(None, 80)
-        text = font.render("WIN", True, (0, 255, 0))
+            for _ in range(20):
+                x = random.randint(0, COLS - 1) * TILE_SIZE
+                y = random.randint(0, ROWS - 1) * TILE_SIZE
 
-        screen.blit(text, (WIDTH//2 - 50, HEIGHT//2 - 40))
+                new_enemy = Enemy(x, y)
+                enemies_on_map += 1
+                collision = False
+                for obs in obstacles:
+                    if new_enemy.rect.colliderect(obs.rect):
+                        collision = True
+                        break
 
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-        continue
-    current_time = pygame.time.get_ticks()
-
-    if current_time - last_spawn_time > spawn_delay:
-        last_spawn_time = current_time
-
-        for _ in range(20):
-            x = random.randint(0, COLS - 1) * TILE_SIZE
-            y = random.randint(0, ROWS - 1) * TILE_SIZE
-
-            new_enemy = Enemy(x, y)
-
-            collision = False
-            for obs in obstacles:
-                if new_enemy.rect.colliderect(obs.rect):
-                    collision = True
+                if not collision:
+                    enemies.append(new_enemy)
                     break
-
-            if not collision:
-                enemies.append(new_enemy)
-                break
     clock.tick(FPS)
     #Фон
     if background_img:
@@ -405,6 +528,8 @@ while True:
             if enemy.health <1:
                 enemies.remove(enemy)
                 points += 1
+                enemies_on_map -= 1
+                last_spawn_time = pygame.time.get_ticks()
                 text1 = font.render(f"Points: {points}", True, (255, 255, 255))
     for bullet in enemy_bullets[:]:
         bullet.move()
@@ -439,7 +564,8 @@ while True:
         bullet.draw()
     for bullet in enemy_bullets:
         bullet.draw()
-    screen.blit(text1, (650, 20))
+    screen.blit(text1, (650, 50))
+    screen.blit(textlevel, (650, 20))
 
     for i in range(player_health):
         pygame.draw.rect(screen, (255, 0, 0), (60 + i * 35, 15, 40, 15))
